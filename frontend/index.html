@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurant App</title>
+</head>
+<body>
+    <h1>Restaurant App</h1>
+
+    <h2>Products</h2>
+    <ul id="product-list"></ul>
+    <button onclick="addProduct()">Add Product</button>
+
+    <h2>Transactions</h2>
+    <ul id="transaction-list"></ul>
+    <button onclick="addTransaction()">Add Transaction</button>
+
+    <script>
+        async function fetchData(endpoint) {
+            const response = await fetch(`http://localhost:3000/${endpoint}`);
+            return response.json();
+        }
+
+        async function renderProducts() {
+            const products = await fetchData('products');
+            const productList = document.getElementById('product-list');
+            productList.innerHTML = '';
+            products.forEach(product => {
+                const li = document.createElement('li');
+                li.textContent = `${product.name} - $${product.price}`;
+                productList.appendChild(li);
+            });
+        }
+
+        async function addProduct() {
+            const productName = prompt('Enter product name:');
+            const productPrice = parseFloat(prompt('Enter product price:'));
+            const newProduct = { name: productName, price: productPrice };
+
+            await fetch('http://localhost:3000/products', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(newProduct),
+            });
+
+            renderProducts();
+        }
+
+        async function renderTransactions() {
+            const transactions = await fetchData('transactions');
+            const transactionList = document.getElementById('transaction-list');
+            transactionList.innerHTML = '';
+            transactions.forEach(transaction => {
+                const li = document.createElement('li');
+                li.textContent = `${transaction.product} - $${transaction.amount}`;
+                transactionList.appendChild(li);
+            });
+        }
+
+        async function addTransaction() {
+            const productName = prompt('Enter product name:');
+            const amount = parseFloat(prompt('Enter transaction amount:'));
+            const newTransaction = { product: productName, amount: amount };
+
+            await fetch('http://localhost:3000/transactions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(newTransaction),
+            });
+
+            renderTransactions();
+        }
+
+        renderProducts();
+        renderTransactions();
+    </script>
+</body>
+</html>
